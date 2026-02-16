@@ -4,7 +4,8 @@ A self-hosted feature request and voting system for iOS apps, powered by [Supaba
 
 Your users leave feature requests:
 
-<p align="center">                                                                                                               
+<p align="center">       
+    <img width="590" height="1278" alt="IMG_4184" src="https://github.com/user-attachments/assets/d525db0f-4d32-4cd5-992e-66ceb443ad0a" />
     <img src="https://github.com/user-attachments/assets/7f4fb30d-da9b-4919-886e-741738473c9d" width="295" alt="FeedbackFlow 
   Screenshot" />                                                                                                                   
   </p>   
