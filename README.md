@@ -1,6 +1,6 @@
 # FeedbackFlow
 
-A self-hosted feature request and voting system for iOS apps, powered by [Supabase](https://supabase.com). Drop-in replacement for paid services like WishKit, Canny, or Nolt — with full control over your data.
+A self-hosted feature request and voting system for iOS apps, powered by [Supabase](https://supabase.com). Full control over your data, no recurring fees.
 
 **Zero external dependencies.** Pure Swift + URLSession. No Supabase SDK required.
 
