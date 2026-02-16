@@ -2,6 +2,15 @@
 
 A self-hosted feature request and voting system for iOS apps, powered by [Supabase](https://supabase.com). Full control over your data, no recurring fees.
 
+Admin UI: 
+<img width="2032" height="1162" alt="image" src="https://github.com/user-attachments/assets/447fc611-7732-4481-bfb5-bdbad9b7cda8" />
+
+App UI:
+<img width="590" height="1278" alt="Screenshot 2026-02-16 at 14 32 24" src="https://github.com/user-attachments/assets/7f4fb30d-da9b-4919-886e-741738473c9d" />
+
+
+
+
 **Zero external dependencies.** Pure Swift + URLSession. No Supabase SDK required.
 
 ## Features
