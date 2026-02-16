@@ -29,6 +29,7 @@ Which you can then prioritize in admin UI:
 - **Admin panel** — single HTML file with Kanban board, drag & drop status changes
 - **Privacy-first** — device-based identity, no user accounts required
 - **Row Level Security** — users only see approved requests; admins see everything
+- **Email notifications** — get notified on new requests, votes, and comments via [Resend](https://resend.com)
 
 ## Architecture
 
@@ -217,6 +218,31 @@ You can host the admin panel anywhere:
 - Serve from your own domain
 
 No server-side code needed — it talks directly to Supabase.
+
+## Email Notifications (Optional)
+
+Get an email whenever a user submits a request, votes, or comments. Uses [Resend](https://resend.com) (free tier: 100 emails/day) and Supabase's `pg_net` extension — no Edge Functions or external servers needed.
+
+### Setup
+
+1. Create a free account at [resend.com](https://resend.com) and copy your API key
+2. In Supabase dashboard, go to **Database** → **Extensions** and enable **pg_net**
+3. Open [`supabase/notifications.sql`](supabase/notifications.sql) and replace the placeholders:
+   - `YOUR_RESEND_API_KEY` → your Resend API key
+   - `YOUR_EMAIL@EXAMPLE` → email to receive notifications
+   - `YOUR_SENDER_NAME` → display name (e.g., "FeedbackFlow")
+   - `your@verified.domain` → a domain verified in Resend, or `onboarding@resend.dev` for testing
+4. Run the SQL in **SQL Editor**
+
+### What you'll receive
+
+| Event | Email subject |
+|-------|--------------|
+| New request | "New feature request: {title}" |
+| New vote | "New vote on: {title}" |
+| New comment | "New comment on: {title}" |
+
+> **Tip:** If vote notifications become too noisy, drop the trigger: `DROP TRIGGER trg_new_vote ON feedback_votes;`
 
 ## Database Schema
 
