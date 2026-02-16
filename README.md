@@ -4,7 +4,10 @@ A self-hosted feature request and voting system for iOS apps, powered by [Supaba
 
 Your users leave feature requests:
 
-<img width="295" height="639" alt="Screenshot 2026-02-16 at 14 32 24" src="https://github.com/user-attachments/assets/7f4fb30d-da9b-4919-886e-741738473c9d" />
+<p align="center">                                                                                                               
+    <img src="https://github.com/user-attachments/assets/7f4fb30d-da9b-4919-886e-741738473c9d" width="295" alt="FeedbackFlow 
+  Screenshot" />                                                                                                                   
+  </p>   
 
 Which you can then prioritize in admin UI: 
 
