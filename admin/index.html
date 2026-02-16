@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FeedbackFlow Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --bg: #0f0a07;
+    --surface: #1a1210;
+    --surface2: #252019;
+    --text: #f5f0eb;
+    --text2: #9a9088;
+    --accent: #d9a566;
+    --border: rgba(255,255,255,0.08);
+    --pending: #9a9088;
+    --in-review: #6bb3d9;
+    --planned: #a78bfa;
+    --in-progress: #f59e0b;
+    --completed: #34d399;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* Login */
+  .login-container {
+    display: flex; align-items: center; justify-content: center; min-height: 100vh;
+  }
+  .login-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 40px; width: 380px; max-width: 90vw;
+  }
+  .login-box h1 { font-size: 22px; margin-bottom: 24px; }
+  .login-box input {
+    width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: 14px; margin-bottom: 12px; outline: none;
+  }
+  .login-box input:focus { border-color: var(--accent); }
+  .login-box button {
+    width: 100%; padding: 12px; border-radius: 10px; border: none;
+    background: var(--accent); color: var(--bg); font-size: 15px; font-weight: 600;
+    cursor: pointer; margin-top: 8px;
+  }
+  .login-box button:hover { opacity: 0.9; }
+  .login-box .error { color: #ef4444; font-size: 13px; margin-top: 8px; }
+  .login-box label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 6px; }
+  .loading-text { color: var(--text2); font-size: 14px; text-align: center; }
+  .setup-fields { margin-bottom: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .setup-hint { font-size: 11px; color: var(--text2); margin-bottom: 12px; }
+
+  /* Header */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px; border-bottom: 1px solid var(--border);
+  }
+  .header h1 { font-size: 18px; font-weight: 700; }
+  .header-actions { display: flex; gap: 8px; }
+  .header button {
+    padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border);
+    background: transparent; color: var(--text2); font-size: 13px; cursor: pointer;
+  }
+  .header button:hover { color: var(--text); border-color: var(--text2); }
+
+  /* Board */
+  .board {
+    display: flex; gap: 16px; padding: 20px 24px; overflow-x: auto; min-height: calc(100vh - 60px);
+  }
+  .column {
+    flex: 1; min-width: 260px; max-width: 340px;
+  }
+  .column-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 0 4px;
+  }
+  .column-header .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .column-header h2 { font-size: 14px; font-weight: 600; }
+  .column-header .count {
+    font-size: 12px; color: var(--text2); background: var(--surface2);
+    padding: 2px 8px; border-radius: 10px; margin-left: auto;
+  }
+  .column-body {
+    min-height: 100px; border-radius: 12px; padding: 4px;
+  }
+  .column-body.drag-over {
+    background: rgba(217,165,102,0.06); outline: 2px dashed var(--accent); outline-offset: -2px;
+    border-radius: 12px;
+  }
+
+  /* Card */
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px; margin-bottom: 8px; cursor: grab; transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .card:active { cursor: grabbing; }
+  .card.dragging { opacity: 0.5; transform: scale(0.97); }
+  .card-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; line-height: 1.3; }
+  .card-desc { font-size: 12px; color: var(--text2); margin-bottom: 8px; line-height: 1.4;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-meta { display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--text2); }
+  .card-votes { display: flex; align-items: center; gap: 3px; }
+  .card-comments { display: flex; align-items: center; gap: 3px; }
+  .card-email { opacity: 0.7; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex;
+    align-items: center; justify-content: center; z-index: 100;
+  }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 28px; width: 480px; max-width: 90vw; max-height: 80vh; overflow-y: auto;
+  }
+  .modal h2 { font-size: 18px; margin-bottom: 16px; }
+  .modal p { font-size: 14px; color: var(--text2); line-height: 1.6; margin-bottom: 12px; }
+  .modal .label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .modal .value { font-size: 14px; margin-bottom: 16px; }
+  .modal .close-btn {
+    padding: 8px 20px; border-radius: 8px; border: 1px solid var(--border);
+    background: transparent; color: var(--text); cursor: pointer; font-size: 13px; margin-top: 8px;
+  }
+  .modal .close-btn:hover { border-color: var(--text2); }
+  .modal .delete-btn {
+    padding: 8px 20px; border-radius: 8px; border: 1px solid #ef4444;
+    background: transparent; color: #ef4444; cursor: pointer; font-size: 13px; margin-top: 8px; margin-left: 8px;
+  }
+  .modal .delete-btn:hover { background: rgba(239,68,68,0.1); }
+  .comment { background: var(--surface2); border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
+  .comment-body { font-size: 13px; color: var(--text); line-height: 1.4; }
+  .comment-meta { font-size: 11px; color: var(--text2); margin-top: 4px; word-break: break-all; }
+  .no-comments { font-size: 13px; color: var(--text2); font-style: italic; }
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="loginScreen" class="login-container">
+  <div class="login-box">
+    <h1>FeedbackFlow Admin</h1>
+    <p class="loading-text" id="loadingText">Checking session...</p>
+    <div id="loginFields" style="display:none">
+      <!-- Setup fields (only shown on first use) -->
+      <div id="setupFields" class="setup-fields" style="display:none">
+        <p class="setup-hint">First-time setup — these will be saved for next time.</p>
+        <label>Supabase URL</label>
+        <input type="text" id="inputUrl" placeholder="https://xxxxx.supabase.co">
+        <label>Anon Key</label>
+        <input type="text" id="inputKey" placeholder="eyJ...">
+      </div>
+      <!-- Always shown -->
+      <label>Email</label>
+      <input type="email" id="inputEmail" placeholder="admin@example.com">
+      <label>Password</label>
+      <input type="password" id="inputPassword" placeholder="Password" onkeydown="if(event.key==='Enter')login()">
+      <button onclick="login()">Sign In</button>
+      <div id="loginError" class="error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Board Screen -->
+<div id="boardScreen" style="display:none">
+  <div class="header">
+    <h1>FeedbackFlow Admin</h1>
+    <div class="header-actions">
+      <button onclick="loadBoard()">Refresh</button>
+      <button onclick="logout()">Sign Out</button>
+    </div>
+  </div>
+  <div class="board" id="board"></div>
+</div>
+
+<!-- Detail Modal -->
+<div id="detailModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h2 id="modalTitle"></h2>
+    <div class="label">Description</div>
+    <p id="modalDesc"></p>
+    <div class="label">Email</div>
+    <div class="value" id="modalEmail"></div>
+    <div class="label">Votes</div>
+    <div class="value" id="modalVotes"></div>
+    <div class="label">Device ID</div>
+    <div class="value" id="modalDevice" style="font-size:12px;word-break:break-all;"></div>
+    <div class="label">Created</div>
+    <div class="value" id="modalDate"></div>
+    <div class="label">Comments</div>
+    <div id="modalComments" style="margin-bottom:16px;"></div>
+    <div style="display:flex;">
+      <button class="close-btn" onclick="closeModal()">Close</button>
+      <button class="delete-btn" id="modalDeleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STATUSES = ['pending', 'in_review', 'planned', 'in_progress', 'completed'];
+const STATUS_LABELS = { pending: 'Pending', in_review: 'In Review', planned: 'Planned', in_progress: 'In Progress', completed: 'Completed' };
+const STATUS_COLORS = { pending: 'var(--pending)', in_review: 'var(--in-review)', planned: 'var(--planned)', in_progress: 'var(--in-progress)', completed: 'var(--completed)' };
+
+let sb = null;
+let allRequests = [];
+
+// Auto-correct dashboard URL → API URL
+function normalizeUrl(url) {
+  if (!url) return url;
+  // Fix: user pasted dashboard URL like https://supabase.com/dashboard/project/XXXX/...
+  const dashMatch = url.match(/supabase\.com\/dashboard\/project\/([a-z]+)/);
+  if (dashMatch) return 'https://' + dashMatch[1] + '.supabase.co';
+  return url.replace(/\/+$/, ''); // trim trailing slashes
+}
+
+// Try to restore saved config
+let savedUrl = normalizeUrl(localStorage.getItem('sf_url') || '');
+const savedKey = localStorage.getItem('sf_key') || '';
+const savedEmail = localStorage.getItem('sf_email') || '';
+// Persist corrected URL
+if (savedUrl) localStorage.setItem('sf_url', savedUrl);
+
+async function init() {
+  try {
+    // Check if Supabase SDK loaded
+    if (!window.supabase || !window.supabase.createClient) {
+      console.warn('Supabase SDK not loaded');
+      showLoginForm();
+      return;
+    }
+
+    // If we have saved config, try auto-login from session
+    if (savedUrl && savedKey) {
+      sb = window.supabase.createClient(savedUrl, savedKey);
+      // Race against a timeout — file:// can cause hangs
+      const sessionResult = await Promise.race([
+        sb.auth.getSession(),
+        new Promise(resolve => setTimeout(() => resolve(null), 2000))
+      ]);
+      if (sessionResult && sessionResult.data && sessionResult.data.session) {
+        await showBoard();
+        return;
+      }
+    }
+  } catch (e) {
+    console.warn('Auto-login failed:', e);
+  }
+  // No session or error — show login
+  showLoginForm();
+}
+
+// Fallback: if init doesn't resolve in 4s, force show login
+setTimeout(() => {
+  if (document.getElementById('loginFields').style.display === 'none' &&
+      document.getElementById('boardScreen').style.display === 'none') {
+    console.warn('Init timed out, showing login');
+    showLoginForm();
+  }
+}, 4000);
+
+function showLoginForm() {
+  document.getElementById('loadingText').style.display = 'none';
+  document.getElementById('loginFields').style.display = 'block';
+
+  // Show setup fields only if URL/key not saved yet
+  if (!savedUrl || !savedKey) {
+    document.getElementById('setupFields').style.display = 'block';
+    document.getElementById('inputUrl').value = savedUrl;
+    document.getElementById('inputKey').value = savedKey;
+  }
+  document.getElementById('inputEmail').value = savedEmail;
+  document.getElementById('inputEmail').focus();
+}
+
+async function showBoard() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('boardScreen').style.display = 'block';
+  await loadBoard();
+}
+
+async function login() {
+  const errorEl = document.getElementById('loginError');
+  errorEl.textContent = '';
+
+  // Get URL/key from fields or saved
+  const url = normalizeUrl(document.getElementById('inputUrl')?.value.trim() || savedUrl);
+  const key = document.getElementById('inputKey')?.value.trim() || savedKey;
+  const email = document.getElementById('inputEmail').value.trim();
+  const password = document.getElementById('inputPassword').value;
+
+  if (!url || !key) {
+    errorEl.textContent = 'Supabase URL and Anon Key are required.';
+    return;
+  }
+  if (!email || !password) {
+    errorEl.textContent = 'Email and password are required.';
+    return;
+  }
+
+  try {
+    sb = window.supabase.createClient(url, key);
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+
+    // Save for next time
+    localStorage.setItem('sf_url', url);
+    localStorage.setItem('sf_key', key);
+    localStorage.setItem('sf_email', email);
+
+    await showBoard();
+  } catch (e) {
+    errorEl.textContent = e.message || 'Login failed.';
+  }
+}
+
+async function logout() {
+  if (sb) await sb.auth.signOut();
+  document.getElementById('boardScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  showLoginForm();
+}
+
+async function loadBoard() {
+  const { data, error } = await sb
+    .from('feedback_requests')
+    .select('*, feedback_comments(count)')
+    .order('vote_count', { ascending: false });
+
+  if (error) { console.error(error); return; }
+  allRequests = (data || []).map(r => ({
+    ...r,
+    comment_count: r.feedback_comments?.[0]?.count || 0
+  }));
+  renderBoard();
+}
+
+function renderBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+
+  for (const status of STATUSES) {
+    const items = allRequests.filter(r => r.status === status);
+    const col = document.createElement('div');
+    col.className = 'column';
+    col.innerHTML = `
+      <div class="column-header">
+        <div class="dot" style="background:${STATUS_COLORS[status]}"></div>
+        <h2>${STATUS_LABELS[status]}</h2>
+        <span class="count">${items.length}</span>
+      </div>
+      <div class="column-body" data-status="${status}"></div>
+    `;
+
+    const body = col.querySelector('.column-body');
+
+    body.addEventListener('dragover', e => { e.preventDefault(); body.classList.add('drag-over'); });
+    body.addEventListener('dragleave', () => body.classList.remove('drag-over'));
+    body.addEventListener('drop', async e => {
+      e.preventDefault();
+      body.classList.remove('drag-over');
+      const id = e.dataTransfer.getData('text/plain');
+      if (!id) return;
+      await updateStatus(id, status);
+    });
+
+    for (const item of items) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.draggable = true;
+      card.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', item.id);
+        card.classList.add('dragging');
+      });
+      card.addEventListener('dragend', () => card.classList.remove('dragging'));
+      card.addEventListener('click', () => showDetail(item));
+
+      const date = new Date(item.created_at).toLocaleDateString();
+      card.innerHTML = `
+        <div class="card-title">${esc(item.title)}</div>
+        ${item.description ? `<div class="card-desc">${esc(item.description)}</div>` : ''}
+        <div class="card-meta">
+          <span class="card-votes">&#9650; ${item.vote_count}</span>
+          ${item.comment_count > 0 ? `<span class="card-comments">&#128172; ${item.comment_count}</span>` : ''}
+          ${item.email ? `<span class="card-email">${esc(item.email)}</span>` : ''}
+          <span>${date}</span>
+        </div>
+      `;
+      body.appendChild(card);
+    }
+
+    board.appendChild(col);
+  }
+}
+
+async function updateStatus(id, newStatus) {
+  const { error } = await sb
+    .from('feedback_requests')
+    .update({ status: newStatus })
+    .eq('id', id);
+
+  if (error) { console.error(error); return; }
+  const item = allRequests.find(r => r.id === id);
+  if (item) item.status = newStatus;
+  renderBoard();
+}
+
+let currentModalId = null;
+
+async function showDetail(item) {
+  currentModalId = item.id;
+  document.getElementById('modalTitle').textContent = item.title;
+  document.getElementById('modalDesc').textContent = item.description || '(none)';
+  document.getElementById('modalEmail').textContent = item.email || '(none)';
+  document.getElementById('modalVotes').textContent = item.vote_count;
+  document.getElementById('modalDevice').textContent = item.device_id || '(none)';
+  document.getElementById('modalDate').textContent = new Date(item.created_at).toLocaleString();
+  document.getElementById('modalDeleteBtn').onclick = () => deleteRequest(item.id);
+  document.getElementById('detailModal').style.display = 'flex';
+
+  // Load comments
+  const commentsEl = document.getElementById('modalComments');
+  commentsEl.innerHTML = '<span class="no-comments">Loading...</span>';
+  const { data: comments, error } = await sb
+    .from('feedback_comments')
+    .select('*')
+    .eq('request_id', item.id)
+    .order('created_at', { ascending: true });
+
+  if (error || !comments || comments.length === 0) {
+    commentsEl.innerHTML = '<span class="no-comments">No comments yet</span>';
+    return;
+  }
+  commentsEl.innerHTML = comments.map(c => `
+    <div class="comment">
+      <div class="comment-body">${esc(c.body)}</div>
+      <div class="comment-meta">${new Date(c.created_at).toLocaleString()} &middot; ${esc(c.device_id)}</div>
+    </div>
+  `).join('');
+}
+
+function closeModal() {
+  document.getElementById('detailModal').style.display = 'none';
+  currentModalId = null;
+}
+
+async function deleteRequest(id) {
+  if (!confirm('Delete this request permanently?')) return;
+  const { error } = await sb
+    .from('feedback_requests')
+    .delete()
+    .eq('id', id);
+
+  if (error) { console.error(error); return; }
+  allRequests = allRequests.filter(r => r.id !== id);
+  closeModal();
+  renderBoard();
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// Start
+init();
+</script>
+</body>
+</html>
