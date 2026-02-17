@@ -2,20 +2,22 @@
 
 A self-hosted feature request and voting system for iOS apps, powered by [Supabase](https://supabase.com). Full control over your data, no recurring fees.
 
-Your users leave feature requests:
+## How it works
+
+1. Your users leave feature requests:
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/d525db0f-4d32-4cd5-992e-66ceb443ad0a" width="32%" alt="New Request" />
   <img src="https://github.com/user-attachments/assets/7f4fb30d-da9b-4919-886e-741738473c9d" width="32%" alt="Feature Requests" />
 </p>
 
-Which you can then prioritize in admin UI:
+2. Which you can then prioritize in admin UI:
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/447fc611-7732-4481-bfb5-bdbad9b7cda8" width="90%" alt="Admin Panel" />
 </p>
 
-
+That's it! 
 
 **Zero external dependencies.** Pure Swift + URLSession. No Supabase SDK required.
 
