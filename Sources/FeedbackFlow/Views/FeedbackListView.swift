@@ -12,11 +12,18 @@ struct FeedbackListViewContent: View {
     }
 
     private var filteredRequests: [FeedbackRequest] {
+        let base: [FeedbackRequest]
         switch selectedFilter {
         case .all:
-            return viewModel.requests
+            base = viewModel.requests
         case .status(let status):
-            return viewModel.requests.filter { $0.status == status }
+            base = viewModel.requests.filter { $0.status == status }
+        }
+        return base.sorted { a, b in
+            let orderA = a.status.sortOrder
+            let orderB = b.status.sortOrder
+            if orderA != orderB { return orderA < orderB }
+            return a.voteCount > b.voteCount
         }
     }
 
@@ -344,6 +351,7 @@ extension FeedbackRequest.Status {
         case .planned: return "Planned"
         case .inProgress: return "In Progress"
         case .completed: return "Completed"
+        case .hidden: return "Hidden"
         }
     }
 
@@ -354,6 +362,18 @@ extension FeedbackRequest.Status {
         case .planned: return .purple
         case .inProgress: return .orange
         case .completed: return .green
+        case .hidden: return .gray
+        }
+    }
+
+    var sortOrder: Int {
+        switch self {
+        case .planned: return 0
+        case .inProgress: return 1
+        case .inReview: return 2
+        case .completed: return 3
+        case .pending: return 4
+        case .hidden: return 5
         }
     }
 }

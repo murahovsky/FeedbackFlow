@@ -60,7 +60,7 @@ final class FeedbackService: @unchecked Sendable {
 
     func fetchRequests() async throws -> [FeedbackRequest] {
         // Fetch non-pending requests, ordered by vote_count desc
-        let urlString = "\(baseUrl)/rest/v1/feedback_requests?status=neq.pending&order=vote_count.desc,created_at.desc&select=*"
+        let urlString = "\(baseUrl)/rest/v1/feedback_requests?status=not.in.(pending,hidden)&order=vote_count.desc,created_at.desc&select=*"
         guard let url = URL(string: urlString) else {
             throw FeedbackError.invalidURL
         }

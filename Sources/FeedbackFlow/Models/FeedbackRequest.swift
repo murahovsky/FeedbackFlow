@@ -17,6 +17,7 @@ public struct FeedbackRequest: Identifiable, Codable, Sendable {
         case planned
         case inProgress = "in_progress"
         case completed
+        case hidden
     }
 
     enum CodingKeys: String, CodingKey {

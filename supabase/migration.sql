@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS feedback_requests (
     description text,
     email       text,
     status      text NOT NULL DEFAULT 'pending'
-                CHECK (status IN ('pending', 'in_review', 'planned', 'in_progress', 'completed')),
+                CHECK (status IN ('pending', 'in_review', 'planned', 'in_progress', 'completed', 'hidden')),
     vote_count  integer NOT NULL DEFAULT 0,
     device_id   text,
     created_at  timestamptz NOT NULL DEFAULT now()
@@ -39,7 +39,7 @@ ALTER TABLE feedback_votes ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "anon_read_approved_requests"
     ON feedback_requests
     FOR SELECT
-    USING (status != 'pending');
+    USING (status NOT IN ('pending', 'hidden'));
 
 -- feedback_requests: anyone can insert (new submissions are 'pending')
 CREATE POLICY "anon_insert_requests"
@@ -92,7 +92,7 @@ CREATE POLICY "anon_read_comments"
     USING (EXISTS (
         SELECT 1 FROM feedback_requests
         WHERE feedback_requests.id = feedback_comments.request_id
-        AND feedback_requests.status != 'pending'
+        AND feedback_requests.status NOT IN ('pending', 'hidden')
     ));
 
 -- Anyone can insert comments

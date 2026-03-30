@@ -19,6 +19,7 @@
     --planned: #a78bfa;
     --in-progress: #f59e0b;
     --completed: #34d399;
+    --hidden: #6b7280;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
@@ -195,9 +196,9 @@
 </div>
 
 <script>
-const STATUSES = ['pending', 'in_review', 'planned', 'in_progress', 'completed'];
-const STATUS_LABELS = { pending: 'Pending', in_review: 'In Review', planned: 'Planned', in_progress: 'In Progress', completed: 'Completed' };
-const STATUS_COLORS = { pending: 'var(--pending)', in_review: 'var(--in-review)', planned: 'var(--planned)', in_progress: 'var(--in-progress)', completed: 'var(--completed)' };
+const STATUSES = ['pending', 'in_review', 'planned', 'in_progress', 'completed', 'hidden'];
+const STATUS_LABELS = { pending: 'Pending', in_review: 'In Review', planned: 'Planned', in_progress: 'In Progress', completed: 'Completed', hidden: 'Hidden' };
+const STATUS_COLORS = { pending: 'var(--pending)', in_review: 'var(--in-review)', planned: 'var(--planned)', in_progress: 'var(--in-progress)', completed: 'var(--completed)', hidden: 'var(--hidden)' };
 
 let sb = null;
 let allRequests = [];
