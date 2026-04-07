@@ -28,15 +28,15 @@ struct SubmitFeedbackSheet: View {
                 if didSubmit {
                     // Success state
                     VStack(spacing: 16) {
-                        Image(systemName: "checkmark.circle.fill")
+                        Image(systemName: AppImageKey.SF.checkmarkFill)
                             .font(.system(size: 52))
                             .foregroundColor(.green)
 
-                        Text("Thank you!")
+                        Text(LocalizedStringKey(L10nKey.SubmitFeedback.submitFeedbackThankYou))
                             .font(.system(size: 22, weight: .bold))
                             .foregroundColor(theme.text)
 
-                        Text("Your request has been submitted.\nWe'll review it shortly.")
+                        Text(LocalizedStringKey(L10nKey.SubmitFeedback.submitFeedbackSuccessMessage))
                             .font(.system(size: 15))
                             .foregroundColor(theme.secondaryText)
                             .multilineTextAlignment(.center)
@@ -47,12 +47,12 @@ struct SubmitFeedbackSheet: View {
                         VStack(alignment: .leading, spacing: 20) {
                             // Title field
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Title")
+                                Text(LocalizedStringKey(L10nKey.SubmitFeedback.submitFeedbackTitleLabel))
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(theme.secondaryText)
 
                                 ThemedTextField(
-                                    placeholder: "What would you like to see?",
+                                    placeholder: String(localized: LocalizedStringResource(stringLiteral: L10nKey.SubmitFeedback.submitFeedbackTitlePlaceholder)),
                                     text: $title,
                                     theme: theme
                                 )
@@ -60,7 +60,7 @@ struct SubmitFeedbackSheet: View {
 
                             // Description field
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Description")
+                                Text(LocalizedStringKey(L10nKey.SubmitFeedback.submitFeedbackDescriptionLabel))
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(theme.secondaryText)
 
@@ -82,12 +82,12 @@ struct SubmitFeedbackSheet: View {
 
                             // Email field
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Email")
+                                Text(LocalizedStringKey(L10nKey.SubmitFeedback.submitFeedbackEmailLabel))
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(theme.secondaryText)
 
                                 ThemedTextField(
-                                    placeholder: "your@email.com",
+                                    placeholder: String(localized: LocalizedStringResource(stringLiteral: L10nKey.SubmitFeedback.submitFeedbackEmailPlaceholder)),
                                     text: $email,
                                     theme: theme,
                                     keyboardType: .emailAddress,
@@ -95,7 +95,7 @@ struct SubmitFeedbackSheet: View {
                                     autocapitalization: false
                                 )
 
-                                Text("Leave your email if you'd like us to follow up")
+                                Text(LocalizedStringKey(L10nKey.SubmitFeedback.submitFeedbackEmailHint))
                                     .font(.system(size: 12))
                                     .foregroundColor(theme.secondaryText.opacity(0.7))
                             }
@@ -110,12 +110,12 @@ struct SubmitFeedbackSheet: View {
                     }
                 }
             }
-            .navigationTitle("New Request")
+            .navigationTitle(LocalizedStringKey(L10nKey.SubmitFeedback.submitFeedbackNavigationTitle))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     if !didSubmit {
-                        Button("Cancel") {
+                        Button(LocalizedStringKey(L10nKey.Common.commonCancel)) {
                             dismiss()
                         }
                         .foregroundColor(theme.accent)
@@ -124,7 +124,7 @@ struct SubmitFeedbackSheet: View {
 
                 ToolbarItem(placement: .topBarTrailing) {
                     if didSubmit {
-                        Button("Done") {
+                        Button(LocalizedStringKey(L10nKey.Common.commonDone)) {
                             dismiss()
                         }
                         .fontWeight(.semibold)
@@ -137,7 +137,7 @@ struct SubmitFeedbackSheet: View {
                                 ProgressView()
                                     .tint(theme.accent)
                             } else {
-                                Text("Submit")
+                                Text(LocalizedStringKey(L10nKey.Common.commonSubmit))
                                     .fontWeight(.semibold)
                             }
                         }

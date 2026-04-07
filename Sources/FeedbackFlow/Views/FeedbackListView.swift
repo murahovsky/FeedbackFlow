@@ -1,3 +1,4 @@
+
 import SwiftUI
 
 /// Internal view showing approved feature requests with voting.
@@ -42,7 +43,7 @@ struct FeedbackListViewContent: View {
 
                     if filteredRequests.isEmpty {
                         Spacer()
-                        Text("No requests with this status")
+                        Text(LocalizedStringKey(L10nKey.FeedbackList.emptyFiltered))
                             .font(.system(size: 15))
                             .foregroundColor(theme.secondaryText)
                         Spacer()
@@ -72,7 +73,7 @@ struct FeedbackListViewContent: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     FilterChip(
-                        label: "All",
+                        label: String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackList.filterAll)),
                         count: viewModel.requests.count,
                         isSelected: selectedFilter == .all,
                         color: theme.accent,
@@ -150,15 +151,15 @@ struct FeedbackListViewContent: View {
 
     private var emptyState: some View {
         VStack(spacing: 16) {
-            Image(systemName: "lightbulb")
+            Image(systemName: AppImageKey.SF.lightbulb)
                 .font(.system(size: 48, weight: .light))
                 .foregroundColor(theme.secondaryText.opacity(0.4))
 
-            Text("No feature requests yet")
+            Text(LocalizedStringKey(L10nKey.FeedbackList.emptyTitle))
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundColor(theme.text)
 
-            Text("Be the first to suggest an improvement!")
+            Text(LocalizedStringKey(L10nKey.FeedbackList.emptySubtitle))
                 .font(.system(size: 15))
                 .foregroundColor(theme.secondaryText)
         }
@@ -170,7 +171,7 @@ struct FeedbackListViewContent: View {
         Button {
             showSubmitSheet = true
         } label: {
-            Image(systemName: "plus")
+            Image(systemName: AppImageKey.SF.plus)
                 .font(.system(size: 22, weight: .semibold))
                 .foregroundColor(theme.background)
                 .frame(width: 56, height: 56)
@@ -289,7 +290,7 @@ private struct VoteButton: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 4) {
-                Image(systemName: "chevron.up")
+                Image(systemName: AppImageKey.SF.chevronUp)
                     .font(.system(size: 14, weight: .bold))
                 Text("\(count)")
                     .font(.system(size: 14, weight: .semibold))
@@ -346,12 +347,18 @@ struct StatusBadge: View {
 extension FeedbackRequest.Status {
     var displayLabel: String {
         switch self {
-        case .pending: return "Pending"
-        case .inReview: return "In Review"
-        case .planned: return "Planned"
-        case .inProgress: return "In Progress"
-        case .completed: return "Completed"
-        case .hidden: return "Hidden"
+        case .pending:
+            return String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackList.statusPending))
+        case .inReview:
+            return String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackList.statusInReview))
+        case .planned:
+            return String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackList.statusPlanned))
+        case .inProgress:
+            return String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackList.statusInProgress))
+        case .completed:
+            return String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackList.statusCompleted))
+        case .hidden:
+            return String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackList.statusHidden))
         }
     }
 

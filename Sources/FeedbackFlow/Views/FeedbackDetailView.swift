@@ -1,3 +1,4 @@
+
 import SwiftUI
 
 /// Detail view for a single feedback request, with comments.
@@ -26,7 +27,7 @@ struct FeedbackDetailView: View {
                     // Description
                     if let desc = request.description, !desc.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Description")
+                            Text(LocalizedStringKey(L10nKey.FeedbackDetail.description))
                                 .font(.system(size: 12, weight: .semibold))
                                 .foregroundColor(theme.secondaryText)
                                 .textCase(.uppercase)
@@ -69,7 +70,7 @@ struct FeedbackDetailView: View {
                 // Vote
                 Button(action: onToggleVote) {
                     VStack(spacing: 4) {
-                        Image(systemName: "chevron.up")
+                        Image(systemName: AppImageKey.SF.chevronUp)
                             .font(.system(size: 16, weight: .bold))
                         Text("\(request.voteCount)")
                             .font(.system(size: 16, weight: .semibold))
@@ -101,8 +102,8 @@ struct FeedbackDetailView: View {
 
             // Meta
             HStack(spacing: 16) {
-                Label(request.createdAt.formatted(.dateTime.month().day().year()), systemImage: "calendar")
-                Label("\(request.voteCount) vote\(request.voteCount == 1 ? "" : "s")", systemImage: "hand.thumbsup")
+                Label(request.createdAt.formatted(.dateTime.month().day().year()), systemImage: AppImageKey.SF.calendar)
+                Label(votesLabel, systemImage: AppImageKey.SF.handThumbsup)
             }
             .font(.system(size: 12))
             .foregroundColor(theme.secondaryText)
@@ -119,12 +120,22 @@ struct FeedbackDetailView: View {
         .padding(.horizontal, 16)
     }
 
+    private var votesLabel: String {
+        if request.voteCount == 1 {
+            let format = String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackDetail.votesOne))
+            return String(format: format, locale: Locale.current, request.voteCount)
+        } else {
+            let format = String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackDetail.votesOther))
+            return String(format: format, locale: Locale.current, request.voteCount)
+        }
+    }
+
     // MARK: - Comments Section
 
     private var commentsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Comments")
+                Text(LocalizedStringKey(L10nKey.FeedbackDetail.comments))
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(theme.secondaryText)
                     .textCase(.uppercase)
@@ -152,7 +163,7 @@ struct FeedbackDetailView: View {
                 }
                 .padding(.vertical, 20)
             } else if viewModel.comments.isEmpty {
-                Text("No comments yet. Be the first!")
+                Text(LocalizedStringKey(L10nKey.FeedbackDetail.commentsEmpty))
                     .font(.system(size: 14))
                     .foregroundColor(theme.secondaryText.opacity(0.5))
                     .padding(.vertical, 12)
@@ -169,7 +180,7 @@ struct FeedbackDetailView: View {
 
     private var commentInputBar: some View {
         HStack(spacing: 10) {
-            TextField("Add a comment...", text: $commentText, axis: .vertical)
+            TextField(String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackDetail.addCommentPlaceholder)), text: $commentText, axis: .vertical)
                 .font(.system(size: 15))
                 .foregroundColor(theme.text)
                 .lineLimit(1...4)
@@ -188,7 +199,7 @@ struct FeedbackDetailView: View {
             Button {
                 Task { await submitComment() }
             } label: {
-                Image(systemName: "arrow.up.circle.fill")
+                Image(systemName: AppImageKey.SF.arrowCircleUp)
                     .font(.system(size: 32))
                     .foregroundColor(commentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                         ? theme.secondaryText.opacity(0.3)
@@ -229,7 +240,10 @@ private struct CommentRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(isMyComment ? "You" : "User")
+                Text(isMyComment
+                    ? LocalizedStringKey(L10nKey.FeedbackDetail.authorYou)
+                    : LocalizedStringKey(L10nKey.FeedbackDetail.authorUser)
+                )
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(isMyComment ? theme.accent : theme.secondaryText)
 
