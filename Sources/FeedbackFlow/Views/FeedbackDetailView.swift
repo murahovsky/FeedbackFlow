@@ -1,4 +1,3 @@
-
 import SwiftUI
 
 /// Detail view for a single feedback request, with comments.
@@ -27,7 +26,7 @@ struct FeedbackDetailView: View {
                     // Description
                     if let desc = request.description, !desc.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text(LocalizedStringKey(L10nKey.FeedbackDetail.description))
+                            Text(String(localized: .init(stringLiteral: L10nKey.FeedbackDetail.description), bundle: .module))
                                 .font(.system(size: 12, weight: .semibold))
                                 .foregroundColor(theme.secondaryText)
                                 .textCase(.uppercase)
@@ -122,10 +121,10 @@ struct FeedbackDetailView: View {
 
     private var votesLabel: String {
         if request.voteCount == 1 {
-            let format = String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackDetail.votesOne))
+            let format = String(localized: .init(stringLiteral: L10nKey.FeedbackDetail.votesOne), bundle: .module)
             return String(format: format, locale: Locale.current, request.voteCount)
         } else {
-            let format = String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackDetail.votesOther))
+            let format = String(localized: .init(stringLiteral: L10nKey.FeedbackDetail.votesOther), bundle: .module)
             return String(format: format, locale: Locale.current, request.voteCount)
         }
     }
@@ -135,7 +134,7 @@ struct FeedbackDetailView: View {
     private var commentsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text(LocalizedStringKey(L10nKey.FeedbackDetail.comments))
+                Text(String(localized: .init(stringLiteral: L10nKey.FeedbackDetail.comments), bundle: .module))
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(theme.secondaryText)
                     .textCase(.uppercase)
@@ -163,7 +162,7 @@ struct FeedbackDetailView: View {
                 }
                 .padding(.vertical, 20)
             } else if viewModel.comments.isEmpty {
-                Text(LocalizedStringKey(L10nKey.FeedbackDetail.commentsEmpty))
+                Text(String(localized: .init(stringLiteral: L10nKey.FeedbackDetail.commentsEmpty), bundle: .module))
                     .font(.system(size: 14))
                     .foregroundColor(theme.secondaryText.opacity(0.5))
                     .padding(.vertical, 12)
@@ -180,7 +179,7 @@ struct FeedbackDetailView: View {
 
     private var commentInputBar: some View {
         HStack(spacing: 10) {
-            TextField(String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackDetail.addCommentPlaceholder)), text: $commentText, axis: .vertical)
+            TextField(String(localized: .init(stringLiteral: L10nKey.FeedbackDetail.addCommentPlaceholder), bundle: .module), text: $commentText, axis: .vertical)
                 .font(.system(size: 15))
                 .foregroundColor(theme.text)
                 .lineLimit(1...4)
@@ -241,8 +240,8 @@ private struct CommentRow: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(isMyComment
-                    ? LocalizedStringKey(L10nKey.FeedbackDetail.authorYou)
-                    : LocalizedStringKey(L10nKey.FeedbackDetail.authorUser)
+                    ? String(localized: .init(stringLiteral: L10nKey.FeedbackDetail.authorYou), bundle: .module)
+                    : String(localized: .init(stringLiteral: L10nKey.FeedbackDetail.authorUser), bundle: .module)
                 )
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(isMyComment ? theme.accent : theme.secondaryText)

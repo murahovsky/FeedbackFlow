@@ -43,7 +43,7 @@ struct FeedbackListViewContent: View {
 
                     if filteredRequests.isEmpty {
                         Spacer()
-                        Text(LocalizedStringKey(L10nKey.FeedbackList.emptyFiltered))
+                        Text(String(localized: .init(stringLiteral: L10nKey.FeedbackList.emptyFiltered), bundle: .module))
                             .font(.system(size: 15))
                             .foregroundColor(theme.secondaryText)
                         Spacer()
@@ -73,7 +73,7 @@ struct FeedbackListViewContent: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     FilterChip(
-                        label: String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackList.filterAll)),
+                        label: String(localized: .init(stringLiteral: L10nKey.FeedbackList.filterAll), bundle: .module),
                         count: viewModel.requests.count,
                         isSelected: selectedFilter == .all,
                         color: theme.accent,
@@ -155,11 +155,11 @@ struct FeedbackListViewContent: View {
                 .font(.system(size: 48, weight: .light))
                 .foregroundColor(theme.secondaryText.opacity(0.4))
 
-            Text(LocalizedStringKey(L10nKey.FeedbackList.emptyTitle))
+            Text(String(localized: .init(stringLiteral: L10nKey.FeedbackList.emptyTitle), bundle: .module))
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundColor(theme.text)
 
-            Text(LocalizedStringKey(L10nKey.FeedbackList.emptySubtitle))
+            Text(String(localized: .init(stringLiteral: L10nKey.FeedbackList.emptySubtitle), bundle: .module))
                 .font(.system(size: 15))
                 .foregroundColor(theme.secondaryText)
         }
@@ -348,17 +348,17 @@ extension FeedbackRequest.Status {
     var displayLabel: String {
         switch self {
         case .pending:
-            return String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackList.statusPending))
+            return String(localized: .init(stringLiteral: L10nKey.FeedbackList.statusPending), bundle: .module)
         case .inReview:
-            return String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackList.statusInReview))
+            return String(localized: .init(stringLiteral: L10nKey.FeedbackList.statusInReview), bundle: .module)
         case .planned:
-            return String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackList.statusPlanned))
+            return String(localized: .init(stringLiteral: L10nKey.FeedbackList.statusPlanned), bundle: .module)
         case .inProgress:
-            return String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackList.statusInProgress))
+            return String(localized: .init(stringLiteral: L10nKey.FeedbackList.statusInProgress), bundle: .module)
         case .completed:
-            return String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackList.statusCompleted))
+            return String(localized: .init(stringLiteral: L10nKey.FeedbackList.statusCompleted), bundle: .module)
         case .hidden:
-            return String(localized: LocalizedStringResource(stringLiteral: L10nKey.FeedbackList.statusHidden))
+            return String(localized: .init(stringLiteral: L10nKey.FeedbackList.statusHidden), bundle: .module)
         }
     }
 

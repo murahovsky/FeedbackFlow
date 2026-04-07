@@ -50,6 +50,12 @@ enum L10nKey {
     }
 }
 
+extension L10nKey {
+    static func text(_ key: String) -> String {
+        String(localized: .init(stringLiteral: key), bundle: .module)
+    }
+}
+
 enum AppImageKey {
     enum SF {
         static let checkmarkFill = "checkmark.circle.fill"
