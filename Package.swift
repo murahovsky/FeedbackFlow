@@ -4,6 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "FeedbackFlow",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v17)
     ],
@@ -15,7 +16,10 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "FeedbackFlow"
+            name: "FeedbackFlow",
+            resources: [
+                .process("Resources/Localization")
+            ]
         ),
     ]
 )
