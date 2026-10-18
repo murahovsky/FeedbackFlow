@@ -83,8 +83,13 @@ DECLARE
   v_title text;
   v_count int;
 BEGIN
-  SELECT title, vote_count INTO v_title, v_count
+  SELECT title INTO v_title
   FROM feedback_requests WHERE id = NEW.request_id;
+
+  -- Count the votes themselves: toggle_vote bumps vote_count only AFTER
+  -- this insert, so the column still holds the old number here.
+  SELECT count(*) INTO v_count
+  FROM feedback_votes WHERE request_id = NEW.request_id;
 
   PERFORM notify_admin(
     'New vote on: ' || COALESCE(v_title, 'Unknown'),
