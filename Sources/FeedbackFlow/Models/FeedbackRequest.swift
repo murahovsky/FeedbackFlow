@@ -47,6 +47,27 @@ struct CreateFeedbackPayload: Encodable {
     }
 }
 
+/// Payload for an open survey answer (`feedback_survey_responses`).
+struct CreateSurveyPayload: Encodable {
+    let deviceId: String
+    let rating: Int?
+    let liked: String?
+    let improve: String
+    let email: String?
+    let appVersion: String?
+    let posthogId: String?
+
+    enum CodingKeys: String, CodingKey {
+        case deviceId = "device_id"
+        case rating
+        case liked
+        case improve
+        case email
+        case appVersion = "app_version"
+        case posthogId = "posthog_id"
+    }
+}
+
 /// Payload for the toggle_vote RPC call.
 struct ToggleVotePayload: Encodable {
     let pRequestId: UUID
@@ -69,6 +90,17 @@ struct FeedbackVote: Decodable {
 
     enum CodingKeys: String, CodingKey {
         case requestId = "request_id"
+    }
+}
+
+/// Payload for the set_device_email RPC call.
+struct SetDeviceEmailPayload: Encodable {
+    let pDeviceId: String
+    let pEmail: String
+
+    enum CodingKeys: String, CodingKey {
+        case pDeviceId = "p_device_id"
+        case pEmail = "p_email"
     }
 }
 

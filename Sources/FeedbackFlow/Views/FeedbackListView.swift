@@ -55,6 +55,9 @@ struct FeedbackListViewContent: View {
         .overlay(alignment: .bottomTrailing) {
             addButton
         }
+        .sheet(isPresented: $viewModel.shouldAskForEmail) {
+            EmailCaptureSheet()
+        }
         .sheet(isPresented: $showSubmitSheet) {
             SubmitFeedbackSheet(onSubmitted: {
                 Task { await viewModel.loadData() }
@@ -385,6 +388,8 @@ final class FeedbackListViewModel: ObservableObject {
     @Published var requests: [FeedbackRequest] = []
     @Published var votedIds: Set<UUID> = []
     @Published var isLoading = false
+    /// Set once, after the first vote from a device we have no email for.
+    @Published var shouldAskForEmail = false
 
     func loadData() async {
         guard let service = FeedbackFlow.service else { return }
@@ -433,6 +438,10 @@ final class FeedbackListViewModel: ObservableObject {
 
         do {
             try await service.toggleVote(requestId: request.id)
+            if !wasVoted, service.storedEmail == nil, !service.hasAskedForEmail {
+                service.hasAskedForEmail = true
+                shouldAskForEmail = true
+            }
         } catch {
             if wasVoted {
                 votedIds.insert(request.id)

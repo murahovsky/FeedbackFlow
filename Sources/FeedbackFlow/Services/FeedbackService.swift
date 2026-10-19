@@ -32,6 +32,52 @@ final class FeedbackService: @unchecked Sendable {
         return id
     }
 
+    // MARK: - Device Email
+
+    private static let deviceEmailKey = "feedbackflow_device_email"
+    private static let emailPromptShownKey = "feedbackflow_email_prompt_shown"
+
+    /// The email this device has given us, if any.
+    var storedEmail: String? {
+        get { UserDefaults.standard.string(forKey: Self.deviceEmailKey) }
+        set { UserDefaults.standard.set(newValue, forKey: Self.deviceEmailKey) }
+    }
+
+    /// Whether we already asked for an email on this device. We ask once and
+    /// never again, whatever the answer was.
+    var hasAskedForEmail: Bool {
+        get { UserDefaults.standard.bool(forKey: Self.emailPromptShownKey) }
+        set { UserDefaults.standard.set(newValue, forKey: Self.emailPromptShownKey) }
+    }
+
+    /// Upserts the device -> email mapping. One call covers every vote and
+    /// comment this device has ever made, not just the next one.
+    func saveDeviceEmail(_ email: String) async throws {
+        let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+
+        // Goes through a security-definer RPC: the table itself is closed to
+        // the anon key in both directions, so the email list can't be read back
+        // with the key that ships inside the app.
+        let urlString = "\(baseUrl)/rest/v1/rpc/set_device_email"
+        guard let url = URL(string: urlString) else {
+            throw FeedbackError.invalidURL
+        }
+
+        let payload = SetDeviceEmailPayload(pDeviceId: deviceId, pEmail: trimmed)
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        applyHeaders(&request)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try Self.encoder.encode(payload)
+
+        let (_, response) = try await session.data(for: request)
+        try validateResponse(response)
+
+        storedEmail = trimmed
+    }
+
     // MARK: - JSON Coders
 
     private static let decoder: JSONDecoder = {
@@ -88,6 +134,26 @@ final class FeedbackService: @unchecked Sendable {
             email: email,
             deviceId: deviceId
         )
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        applyHeaders(&request)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("return=minimal", forHTTPHeaderField: "Prefer")
+        request.httpBody = try Self.encoder.encode(payload)
+
+        let (_, response) = try await session.data(for: request)
+        try validateResponse(response)
+    }
+
+    // MARK: - Submit Survey Answer
+
+    /// Adds one open survey answer. The anon key can insert but never read these back.
+    func submitSurvey(_ payload: CreateSurveyPayload) async throws {
+        let urlString = "\(baseUrl)/rest/v1/feedback_survey_responses"
+        guard let url = URL(string: urlString) else {
+            throw FeedbackError.invalidURL
+        }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"

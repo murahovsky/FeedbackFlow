@@ -148,6 +148,11 @@ struct SubmitFeedbackSheet: View {
             }
         }
         .presentationDetents([.large])
+        .onAppear {
+            if email.isEmpty, let known = FeedbackFlow.service?.storedEmail {
+                email = known
+            }
+        }
     }
 
     private func submit() async {
@@ -165,6 +170,10 @@ struct SubmitFeedbackSheet: View {
                 description: trimmedDesc.isEmpty ? nil : trimmedDesc,
                 email: trimmedEmail.isEmpty ? nil : trimmedEmail
             )
+            if !trimmedEmail.isEmpty {
+                // Remember it so their votes and comments are reachable too.
+                try? await service.saveDeviceEmail(trimmedEmail)
+            }
             FeedbackFlow.onFeedbackSubmitted?(!trimmedEmail.isEmpty)
             onSubmitted?()
             withAnimation { didSubmit = true }
@@ -177,7 +186,7 @@ struct SubmitFeedbackSheet: View {
 
 // MARK: - Themed TextField (placeholder uses theme colors)
 
-private struct ThemedTextField: View {
+struct ThemedTextField: View {
     let placeholder: String
     @Binding var text: String
     let theme: FeedbackTheme
